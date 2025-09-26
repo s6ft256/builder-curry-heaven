@@ -20,9 +20,7 @@ export function AppLayout({
         <div className="container mx-auto flex items-center justify-between py-3">
           <a href="/" className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-md bg-gradient-to-br from-primary to-accent" />
-            <span className="text-lg font-bold tracking-tight">
-              ELIUS 2025
-            </span>
+            <span className="text-lg font-bold tracking-tight">ELIUS 2025</span>
           </a>
           <nav className="flex items-center gap-2">
             <ThemeToggle />
