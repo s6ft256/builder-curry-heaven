@@ -5,22 +5,23 @@ export function exportRowsToCSV(rows: Row[], filename = "data.csv") {
   if (!rows.length) return;
   const headers = Object.keys(rows[0]);
   const csv = [headers.join(",")]
-    .concat(
-      rows.map((r) => headers.map((h) => escapeCsv(r[h])).join(","))
-    )
+    .concat(rows.map((r) => headers.map((h) => escapeCsv(r[h])).join(",")))
     .join("\n");
   downloadBlob(new Blob([csv], { type: "text/csv;charset=utf-8;" }), filename);
 }
 
 function escapeCsv(v: any) {
   const s = String(v ?? "");
-  if (s.includes(",") || s.includes("\n") || s.includes("\"")) {
+  if (s.includes(",") || s.includes("\n") || s.includes('"')) {
     return '"' + s.replace(/"/g, '""') + '"';
   }
   return s;
 }
 
-export function exportWorkbookToXLSX(wb: ParsedWorkbook, filename = "analysis.xlsx") {
+export function exportWorkbookToXLSX(
+  wb: ParsedWorkbook,
+  filename = "analysis.xlsx",
+) {
   const book = XLSX.utils.book_new();
   for (const sheet of wb.sheets) {
     const ws = XLSX.utils.json_to_sheet(sheet.rows);
@@ -29,7 +30,12 @@ export function exportWorkbookToXLSX(wb: ParsedWorkbook, filename = "analysis.xl
   XLSX.writeFile(book, filename);
 }
 
-export async function exportSvgToPng(el: HTMLElement, filename = "chart.png", width?: number, height?: number) {
+export async function exportSvgToPng(
+  el: HTMLElement,
+  filename = "chart.png",
+  width?: number,
+  height?: number,
+) {
   const svg = el.querySelector("svg");
   if (!svg) throw new Error("No SVG element found to export");
   const serializer = new XMLSerializer();
@@ -48,7 +54,9 @@ export async function exportSvgToPng(el: HTMLElement, filename = "chart.png", wi
   canvas.width = w;
   canvas.height = h;
   const ctx = canvas.getContext("2d")!;
-  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--background");
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue(
+    "--background",
+  );
   ctx.fillRect(0, 0, w, h);
   ctx.drawImage(img, 0, 0, w, h);
   canvas.toBlob((blob) => {

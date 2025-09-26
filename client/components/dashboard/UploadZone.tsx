@@ -3,30 +3,37 @@ import { Button } from "@/components/ui/button";
 import { validateExcelFile, parseExcel, ParsedWorkbook } from "@/lib/excel";
 import { toast } from "sonner";
 
-export function UploadZone({ onParsed }: { onParsed: (wb: ParsedWorkbook) => void }) {
+export function UploadZone({
+  onParsed,
+}: {
+  onParsed: (wb: ParsedWorkbook) => void;
+}) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [isDragging, setDragging] = useState(false);
   const [progress, setProgress] = useState<number | null>(null);
 
-  const handleFiles = useCallback(async (files: FileList | null) => {
-    if (!files || files.length === 0) return;
-    const file = files[0];
-    const validation = validateExcelFile(file);
-    if (!validation.ok) {
-      validation.errors.forEach((e) => toast.error(e));
-      return;
-    }
-    try {
-      setProgress(10);
-      const wb = await parseExcelWithProgress(file, setProgress);
-      toast.success("File processed successfully");
-      onParsed(wb);
-    } catch (e: any) {
-      toast.error(e?.message || "Failed to parse file");
-    } finally {
-      setProgress(null);
-    }
-  }, [onParsed]);
+  const handleFiles = useCallback(
+    async (files: FileList | null) => {
+      if (!files || files.length === 0) return;
+      const file = files[0];
+      const validation = validateExcelFile(file);
+      if (!validation.ok) {
+        validation.errors.forEach((e) => toast.error(e));
+        return;
+      }
+      try {
+        setProgress(10);
+        const wb = await parseExcelWithProgress(file, setProgress);
+        toast.success("File processed successfully");
+        onParsed(wb);
+      } catch (e: any) {
+        toast.error(e?.message || "Failed to parse file");
+      } finally {
+        setProgress(null);
+      }
+    },
+    [onParsed],
+  );
 
   const onDrop = async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -36,10 +43,16 @@ export function UploadZone({ onParsed }: { onParsed: (wb: ParsedWorkbook) => voi
 
   return (
     <div
-      onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDragging(true);
+      }}
       onDragLeave={() => setDragging(false)}
       onDrop={onDrop}
-      className={"border-2 border-dashed rounded-lg p-6 text-center transition-colors " + (isDragging ? "border-primary bg-primary/5" : "border-border")}
+      className={
+        "border-2 border-dashed rounded-lg p-6 text-center transition-colors " +
+        (isDragging ? "border-primary bg-primary/5" : "border-border")
+      }
     >
       <input
         ref={inputRef}
@@ -50,11 +63,15 @@ export function UploadZone({ onParsed }: { onParsed: (wb: ParsedWorkbook) => voi
       />
       <div className="flex flex-col items-center gap-2">
         <p className="font-medium">Drag & drop Excel files here</p>
-        <p className="text-sm text-muted-foreground">.xlsx, .xls up to 25MB. Multiple sheets supported.</p>
+        <p className="text-sm text-muted-foreground">
+          .xlsx, .xls up to 25MB. Multiple sheets supported.
+        </p>
         <div className="flex items-center gap-2 mt-2">
           <Button onClick={() => inputRef.current?.click()}>Choose file</Button>
           {progress !== null && (
-            <div className="text-sm text-muted-foreground">Processing {progress}%</div>
+            <div className="text-sm text-muted-foreground">
+              Processing {progress}%
+            </div>
           )}
         </div>
       </div>
@@ -62,7 +79,10 @@ export function UploadZone({ onParsed }: { onParsed: (wb: ParsedWorkbook) => voi
   );
 }
 
-async function parseExcelWithProgress(file: File, onProgress: (p: number) => void) {
+async function parseExcelWithProgress(
+  file: File,
+  onProgress: (p: number) => void,
+) {
   // We can't truly stream parse with xlsx here; emulate stages
   onProgress(25);
   const wb = await parseExcel(file);

@@ -1,6 +1,11 @@
 import type { Row } from "./excel";
 
-export type ColumnType = "numeric" | "categorical" | "datetime" | "boolean" | "text";
+export type ColumnType =
+  | "numeric"
+  | "categorical"
+  | "datetime"
+  | "boolean"
+  | "text";
 
 export interface ColumnProfile {
   name: string;
@@ -69,7 +74,10 @@ export function inferType(value: any): ColumnType | null {
     const s = value.trim();
     if (s === "true" || s === "false") return "boolean";
     // number-like
-    if (/^[-+]?\d{1,3}(,\d{3})*(\.\d+)?$/.test(s) || /^[-+]?\d*(\.\d+)?$/.test(s))
+    if (
+      /^[-+]?\d{1,3}(,\d{3})*(\.\d+)?$/.test(s) ||
+      /^[-+]?\d*(\.\d+)?$/.test(s)
+    )
       return "numeric";
     // date-like
     const d = new Date(s);
@@ -80,7 +88,9 @@ export function inferType(value: any): ColumnType | null {
 }
 
 export function inferColumnType(values: any[]): ColumnType {
-  const sample = values.filter((v) => v !== null && v !== "" && v !== undefined).slice(0, 200);
+  const sample = values
+    .filter((v) => v !== null && v !== "" && v !== undefined)
+    .slice(0, 200);
   const counts: Record<ColumnType, number> = {
     numeric: 0,
     categorical: 0,
@@ -96,7 +106,9 @@ export function inferColumnType(values: any[]): ColumnType {
   // Decide between categorical/text by unique ratio
   const unique = new Set(sample.map((v) => String(v))).size;
   const uniqueRatio = sample.length ? unique / sample.length : 0;
-  const maxType = (Object.keys(counts) as ColumnType[]).reduce((a, b) => (counts[a] >= counts[b] ? a : b));
+  const maxType = (Object.keys(counts) as ColumnType[]).reduce((a, b) =>
+    counts[a] >= counts[b] ? a : b,
+  );
   if (maxType === "text" && uniqueRatio < 0.2) return "categorical";
   if (maxType === "numeric" && uniqueRatio < 0.05) return "categorical";
   return maxType;
@@ -116,7 +128,8 @@ function quantiles(arr: number[]): { q1: number; q2: number; q3: number } {
 function meanStd(arr: number[]) {
   const n = arr.length;
   const mean = arr.reduce((a, b) => a + b, 0) / (n || 1);
-  const variance = arr.reduce((a, b) => a + (b - mean) ** 2, 0) / (n > 1 ? n - 1 : 1);
+  const variance =
+    arr.reduce((a, b) => a + (b - mean) ** 2, 0) / (n > 1 ? n - 1 : 1);
   const std = Math.sqrt(variance);
   return { mean, std };
 }
@@ -126,7 +139,7 @@ function skewness(arr: number[]) {
   if (n < 3) return 0;
   const { mean, std } = meanStd(arr);
   const m3 = arr.reduce((a, x) => a + (x - mean) ** 3, 0) / n;
-  return m3 / ((std || 1) ** 3);
+  return m3 / (std || 1) ** 3;
 }
 
 export function profileData(rows: Row[]): DatasetProfile {
@@ -135,7 +148,9 @@ export function profileData(rows: Row[]): DatasetProfile {
 
   const columns: ColumnProfile[] = columnNames.map((name) => {
     const colValues = rows.map((r) => r[name]);
-    const nonNull = colValues.filter((v) => v !== null && v !== undefined && v !== "");
+    const nonNull = colValues.filter(
+      (v) => v !== null && v !== undefined && v !== "",
+    );
     const type = inferColumnType(colValues);
 
     const base: ColumnProfile = {
@@ -148,7 +163,11 @@ export function profileData(rows: Row[]): DatasetProfile {
     };
 
     if (type === "numeric") {
-      const nums = nonNull.map((v) => (typeof v === "number" ? v : parseFloat(String(v).replace(/,/g, "")))).filter((v) => isFinite(v));
+      const nums = nonNull
+        .map((v) =>
+          typeof v === "number" ? v : parseFloat(String(v).replace(/,/g, "")),
+        )
+        .filter((v) => isFinite(v));
       const { q1, q2, q3 } = quantiles(nums);
       const { mean, std } = meanStd(nums);
       const stats = {
@@ -172,15 +191,27 @@ export function profileData(rows: Row[]): DatasetProfile {
         const key = String(v);
         map.set(key, (map.get(key) || 0) + 1);
       }
-      const sorted = [...map.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10);
+      const sorted = [...map.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10);
       base.topCategories = sorted.map(([value, count]) => ({ value, count }));
     }
 
     if (type === "datetime") {
-      const dates = nonNull.map((v) => (v instanceof Date ? v : new Date(v))).filter((d) => !isNaN(d.getTime()));
-      const start = dates.length ? new Date(Math.min(...dates.map((d) => d.getTime()))) : new Date(0);
-      const end = dates.length ? new Date(Math.max(...dates.map((d) => d.getTime()))) : new Date(0);
-      base.dateCoverage = { start, end, days: Math.max(0, Math.round((+end - +start) / 86400000)) };
+      const dates = nonNull
+        .map((v) => (v instanceof Date ? v : new Date(v)))
+        .filter((d) => !isNaN(d.getTime()));
+      const start = dates.length
+        ? new Date(Math.min(...dates.map((d) => d.getTime())))
+        : new Date(0);
+      const end = dates.length
+        ? new Date(Math.max(...dates.map((d) => d.getTime())))
+        : new Date(0);
+      base.dateCoverage = {
+        start,
+        end,
+        days: Math.max(0, Math.round((+end - +start) / 86400000)),
+      };
     }
 
     return base;
@@ -195,10 +226,18 @@ export function profileData(rows: Row[]): DatasetProfile {
     columnCount: columns.length,
     completeness,
     columns,
-    numericColumns: columns.filter((c) => c.type === "numeric").map((c) => c.name),
-    categoricalColumns: columns.filter((c) => c.type === "categorical").map((c) => c.name),
-    datetimeColumns: columns.filter((c) => c.type === "datetime").map((c) => c.name),
-    booleanColumns: columns.filter((c) => c.type === "boolean").map((c) => c.name),
+    numericColumns: columns
+      .filter((c) => c.type === "numeric")
+      .map((c) => c.name),
+    categoricalColumns: columns
+      .filter((c) => c.type === "categorical")
+      .map((c) => c.name),
+    datetimeColumns: columns
+      .filter((c) => c.type === "datetime")
+      .map((c) => c.name),
+    booleanColumns: columns
+      .filter((c) => c.type === "boolean")
+      .map((c) => c.name),
   };
 }
 
@@ -221,9 +260,14 @@ export function pearson(x: number[], y: number[]): number {
   return Math.max(-1, Math.min(1, num / den));
 }
 
-export function correlationMatrix(rows: Row[], numericColumns: string[]): CorrelationMatrix {
+export function correlationMatrix(
+  rows: Row[],
+  numericColumns: string[],
+): CorrelationMatrix {
   const cols = numericColumns;
-  const series = cols.map((c) => rows.map((r) => toNumber(r[c])).filter((v) => isFinite(v)));
+  const series = cols.map((c) =>
+    rows.map((r) => toNumber(r[c])).filter((v) => isFinite(v)),
+  );
   const values: number[][] = cols.map(() => Array(cols.length).fill(0));
   for (let i = 0; i < cols.length; i++) {
     for (let j = 0; j < cols.length; j++) {
@@ -239,7 +283,10 @@ function toNumber(v: any): number {
   return isFinite(n) ? n : NaN;
 }
 
-export function detectOutliers(rows: Row[], numericColumns: string[]): { name: string; outlierRate: number }[] {
+export function detectOutliers(
+  rows: Row[],
+  numericColumns: string[],
+): { name: string; outlierRate: number }[] {
   const res: { name: string; outlierRate: number }[] = [];
   for (const c of numericColumns) {
     const nums = rows.map((r) => toNumber(r[c])).filter((v) => isFinite(v));
@@ -254,7 +301,11 @@ export function detectOutliers(rows: Row[], numericColumns: string[]): { name: s
   return res;
 }
 
-export function temporalTrends(rows: Row[], dateColumn: string, numericColumns: string[]): TemporalTrend {
+export function temporalTrends(
+  rows: Row[],
+  dateColumn: string,
+  numericColumns: string[],
+): TemporalTrend {
   // Aggregate by day
   const map = new Map<string, Record<string, number[]>>();
   for (const r of rows) {
@@ -296,20 +347,33 @@ export function deriveInsights(profile: DatasetProfile, rows: Row[]): Insights {
     for (let i = 0; i < corr.columns.length; i++) {
       for (let j = i + 1; j < corr.columns.length; j++) {
         const r = corr.values[i][j];
-        if (Math.abs(r) >= 0.7) strongCorrelations.push({ a: corr.columns[i], b: corr.columns[j], r });
+        if (Math.abs(r) >= 0.7)
+          strongCorrelations.push({
+            a: corr.columns[i],
+            b: corr.columns[j],
+            r,
+          });
       }
     }
   }
 
   const highMissingColumns = profile.columns
     .filter((c) => c.nullCount / (profile.rowCount || 1) > 0.2)
-    .map((c) => ({ name: c.name, missingRate: c.nullCount / (profile.rowCount || 1) }))
+    .map((c) => ({
+      name: c.name,
+      missingRate: c.nullCount / (profile.rowCount || 1),
+    }))
     .sort((a, b) => b.missingRate - a.missingRate);
 
-  const outlierColumns = detectOutliers(rows, profile.numericColumns).filter((o) => o.outlierRate > 0.05);
+  const outlierColumns = detectOutliers(rows, profile.numericColumns).filter(
+    (o) => o.outlierRate > 0.05,
+  );
 
   const categoryImbalance = profile.columns
-    .filter((c) => c.type === "categorical" && c.topCategories && c.topCategories.length)
+    .filter(
+      (c) =>
+        c.type === "categorical" && c.topCategories && c.topCategories.length,
+    )
     .map((c) => {
       const top = c.topCategories![0];
       const share = top.count / (c.nonNullCount || 1);
@@ -317,7 +381,8 @@ export function deriveInsights(profile: DatasetProfile, rows: Row[]): Insights {
     })
     .filter((x) => x.share > 0.6);
 
-  const seasonalityCandidates: { column: string; lag: number; acf: number }[] = [];
+  const seasonalityCandidates: { column: string; lag: number; acf: number }[] =
+    [];
   const dateCol = profile.datetimeColumns[0];
   if (dateCol && profile.numericColumns.length) {
     const t = temporalTrends(rows, dateCol, profile.numericColumns);
@@ -325,32 +390,65 @@ export function deriveInsights(profile: DatasetProfile, rows: Row[]): Insights {
       const series = t.series.map((s) => s.values[c]);
       // Check weekly (7) and monthly (30) patterns
       for (const lag of [7, 12, 30]) {
-        const acf = autocorr(series, Math.min(lag, Math.floor(series.length / 2)));
+        const acf = autocorr(
+          series,
+          Math.min(lag, Math.floor(series.length / 2)),
+        );
         if (acf > 0.5) seasonalityCandidates.push({ column: c, lag, acf });
       }
     }
   }
 
   const recommendations: string[] = [];
-  if (highMissingColumns.length) recommendations.push("Consider imputing missing values (mean/median/mode) or dropping columns with high missingness.");
-  if (outlierColumns.length) recommendations.push("Winsorize or apply robust scaling to columns with many outliers.");
-  if (categoryImbalance.length) recommendations.push("Encode categorical variables and consider techniques to handle class imbalance.");
-  if (profile.numericColumns.length > 5) recommendations.push("Normalize or standardize numeric features to improve comparability.");
-  if (strongCorrelations.length) recommendations.push("High correlations detected; consider removing multicollinearity for modeling.");
+  if (highMissingColumns.length)
+    recommendations.push(
+      "Consider imputing missing values (mean/median/mode) or dropping columns with high missingness.",
+    );
+  if (outlierColumns.length)
+    recommendations.push(
+      "Winsorize or apply robust scaling to columns with many outliers.",
+    );
+  if (categoryImbalance.length)
+    recommendations.push(
+      "Encode categorical variables and consider techniques to handle class imbalance.",
+    );
+  if (profile.numericColumns.length > 5)
+    recommendations.push(
+      "Normalize or standardize numeric features to improve comparability.",
+    );
+  if (strongCorrelations.length)
+    recommendations.push(
+      "High correlations detected; consider removing multicollinearity for modeling.",
+    );
 
-  return { strongCorrelations, highMissingColumns, outlierColumns, categoryImbalance, seasonalityCandidates, recommendations };
+  return {
+    strongCorrelations,
+    highMissingColumns,
+    outlierColumns,
+    categoryImbalance,
+    seasonalityCandidates,
+    recommendations,
+  };
 }
 
 export function completenessScore(profile: DatasetProfile): number {
   return profile.completeness;
 }
 
-export function filterRows(rows: Row[], filters: { [key: string]: any }): Row[] {
+export function filterRows(
+  rows: Row[],
+  filters: { [key: string]: any },
+): Row[] {
   return rows.filter((r) => {
     for (const [key, value] of Object.entries(filters)) {
       const v = r[key];
       if (value == null) continue;
-      if (Array.isArray(value) && value.length === 2 && value[0] instanceof Date && value[1] instanceof Date) {
+      if (
+        Array.isArray(value) &&
+        value.length === 2 &&
+        value[0] instanceof Date &&
+        value[1] instanceof Date
+      ) {
         const d = new Date(v);
         if (isNaN(d.getTime())) return false;
         if (d < value[0] || d > value[1]) return false;

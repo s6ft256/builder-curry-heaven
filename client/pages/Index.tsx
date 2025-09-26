@@ -11,12 +11,31 @@ import { TimeSeries } from "@/components/charts/TimeSeries";
 import { CategoricalBar } from "@/components/charts/CategoricalBar";
 import { CategoricalPie } from "@/components/charts/CategoricalPie";
 import { CrossTab, buildCrossTab } from "@/components/charts/CrossTab";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { ParsedWorkbook, Row, generateSampleDataset } from "@/lib/excel";
-import { DatasetProfile, correlationMatrix, deriveInsights, profileData } from "@/lib/dataAnalysis";
-import { Controls, FiltersState, ChartOptions } from "@/components/dashboard/Controls";
-import { exportRowsToCSV, exportWorkbookToXLSX, exportSvgToPng, exportReportHTML } from "@/lib/export";
+import {
+  DatasetProfile,
+  correlationMatrix,
+  deriveInsights,
+  profileData,
+} from "@/lib/dataAnalysis";
+import {
+  Controls,
+  FiltersState,
+  ChartOptions,
+} from "@/components/dashboard/Controls";
+import {
+  exportRowsToCSV,
+  exportWorkbookToXLSX,
+  exportSvgToPng,
+  exportReportHTML,
+} from "@/lib/export";
 import { toast } from "sonner";
 
 export default function Index() {
@@ -24,10 +43,19 @@ export default function Index() {
   const [sheetIndex, setSheetIndex] = useState(0);
   const [rows, setRows] = useState<Row[]>([]);
   const [profile, setProfile] = useState<DatasetProfile | null>(null);
-  const [corr, setCorr] = useState<{ columns: string[]; values: number[][] } | null>(null);
-  const [insights, setInsights] = useState<ReturnType<typeof deriveInsights> | null>(null);
+  const [corr, setCorr] = useState<{
+    columns: string[];
+    values: number[][];
+  } | null>(null);
+  const [insights, setInsights] = useState<ReturnType<
+    typeof deriveInsights
+  > | null>(null);
   const [filters, setFilters] = useState<FiltersState>({});
-  const [options, setOptions] = useState<ChartOptions>({ palette: "indigo", bins: 20, aggregation: "mean" });
+  const [options, setOptions] = useState<ChartOptions>({
+    palette: "indigo",
+    bins: 20,
+    aggregation: "mean",
+  });
 
   // Undo/redo stacks
   const undoStack = useRef<Row[][]>([]);
@@ -41,10 +69,16 @@ export default function Index() {
   }, [wb, sheetIndex]);
 
   useEffect(() => {
-    if (!rows.length) { setProfile(null); setCorr(null); setInsights(null); return; }
+    if (!rows.length) {
+      setProfile(null);
+      setCorr(null);
+      setInsights(null);
+      return;
+    }
     const p = profileData(rows);
     setProfile(p);
-    if (p.numericColumns.length >= 2) setCorr(correlationMatrix(rows, p.numericColumns));
+    if (p.numericColumns.length >= 2)
+      setCorr(correlationMatrix(rows, p.numericColumns));
     setInsights(deriveInsights(p, rows));
   }, [rows]);
 
@@ -59,7 +93,8 @@ export default function Index() {
     }
   }, []);
   useEffect(() => {
-    if (rows.length) localStorage.setItem("insightforge-state", JSON.stringify({ rows }));
+    if (rows.length)
+      localStorage.setItem("insightforge-state", JSON.stringify({ rows }));
   }, [rows]);
 
   const filteredRows = useMemo(() => {
@@ -78,8 +113,16 @@ export default function Index() {
       });
     }
     // categories
-    if (filters.categoryColumn && filters.selectedCategories && filters.selectedCategories.length) {
-      r = r.filter((row) => filters.selectedCategories!.includes(String(row[filters.categoryColumn!])))
+    if (
+      filters.categoryColumn &&
+      filters.selectedCategories &&
+      filters.selectedCategories.length
+    ) {
+      r = r.filter((row) =>
+        filters.selectedCategories!.includes(
+          String(row[filters.categoryColumn!]),
+        ),
+      );
     }
     return r;
   }, [rows, profile, filters]);
@@ -88,17 +131,30 @@ export default function Index() {
     if (!profile) return {} as Record<string, number[]>;
     const res: Record<string, number[]> = {};
     for (const c of profile.numericColumns) {
-      res[c] = filteredRows.map((r) => toNumber(r[c])).filter((v) => isFinite(v));
+      res[c] = filteredRows
+        .map((r) => toNumber(r[c]))
+        .filter((v) => isFinite(v));
     }
     return res;
   }, [filteredRows, profile]);
 
-  function toNumber(v: any) { if (typeof v === "number") return v; const n = parseFloat(String(v).replace(/,/g, "")); return isFinite(n) ? n : NaN; }
+  function toNumber(v: any) {
+    if (typeof v === "number") return v;
+    const n = parseFloat(String(v).replace(/,/g, ""));
+    return isFinite(n) ? n : NaN;
+  }
 
   const sheetSelector = wb ? (
     <div className="flex flex-wrap gap-2">
       {wb.sheets.map((s, i) => (
-        <Button key={s.name} variant={i === sheetIndex ? "default" : "outline"} size="sm" onClick={() => setSheetIndex(i)}>{s.name}</Button>
+        <Button
+          key={s.name}
+          variant={i === sheetIndex ? "default" : "outline"}
+          size="sm"
+          onClick={() => setSheetIndex(i)}
+        >
+          {s.name}
+        </Button>
       ))}
     </div>
   ) : null;
@@ -109,26 +165,40 @@ export default function Index() {
   }
   function undo() {
     const prev = undoStack.current.pop();
-    if (prev) { redoStack.current.push(rows); setRows(prev); }
+    if (prev) {
+      redoStack.current.push(rows);
+      setRows(prev);
+    }
   }
   function redo() {
     const next = redoStack.current.pop();
-    if (next) { undoStack.current.push(rows); setRows(next); }
+    if (next) {
+      undoStack.current.push(rows);
+      setRows(next);
+    }
   }
 
   function handleParsed(wb: ParsedWorkbook) {
     setWb(wb);
     setSheetIndex(0);
-    toast.message("Workbook loaded", { description: `${wb.metadata.sheetNames.join(", ")}` });
+    toast.message("Workbook loaded", {
+      description: `${wb.metadata.sheetNames.join(", ")}`,
+    });
   }
 
   const autoRecommendations = useMemo(() => {
     if (!profile) return [] as string[];
     const rec: string[] = [];
-    if (profile.numericColumns.length) rec.push("Histograms and box plots for numeric distributions");
-    if (profile.numericColumns.length >= 2) rec.push("Correlation heatmap and scatter plot matrix to explore relationships");
-    if (profile.datetimeColumns.length) rec.push("Time series trends for temporal patterns");
-    if (profile.categoricalColumns.length) rec.push("Bar and pie charts for categorical proportions");
+    if (profile.numericColumns.length)
+      rec.push("Histograms and box plots for numeric distributions");
+    if (profile.numericColumns.length >= 2)
+      rec.push(
+        "Correlation heatmap and scatter plot matrix to explore relationships",
+      );
+    if (profile.datetimeColumns.length)
+      rec.push("Time series trends for temporal patterns");
+    if (profile.categoricalColumns.length)
+      rec.push("Bar and pie charts for categorical proportions");
     return rec;
   }, [profile]);
 
@@ -136,17 +206,53 @@ export default function Index() {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">InsightForge Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Upload Excel workbooks to automatically analyze, visualize, and extract insights.</p>
+          <h1 className="text-2xl font-bold tracking-tight">
+            InsightForge Dashboard
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Upload Excel workbooks to automatically analyze, visualize, and
+            extract insights.
+          </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => { const sample = generateSampleDataset("sales"); handleParsed(sample); setRows(sample.sheets[0].rows); toast.success("Loaded sample data"); }}>Load sample data</Button>
+          <Button
+            variant="outline"
+            onClick={() => {
+              const sample = generateSampleDataset("sales");
+              handleParsed(sample);
+              setRows(sample.sheets[0].rows);
+              toast.success("Loaded sample data");
+            }}
+          >
+            Load sample data
+          </Button>
           {rows.length ? (
             <>
-              <Button variant="ghost" onClick={undo} disabled={!undoStack.current.length}>Undo</Button>
-              <Button variant="ghost" onClick={redo} disabled={!redoStack.current.length}>Redo</Button>
-              <Button variant="outline" onClick={() => exportRowsToCSV(filteredRows)}>Export CSV</Button>
-              {wb && <Button onClick={() => exportWorkbookToXLSX(wb)}>Export Excel</Button>}
+              <Button
+                variant="ghost"
+                onClick={undo}
+                disabled={!undoStack.current.length}
+              >
+                Undo
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={redo}
+                disabled={!redoStack.current.length}
+              >
+                Redo
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => exportRowsToCSV(filteredRows)}
+              >
+                Export CSV
+              </Button>
+              {wb && (
+                <Button onClick={() => exportWorkbookToXLSX(wb)}>
+                  Export Excel
+                </Button>
+              )}
             </>
           ) : null}
         </div>
@@ -157,7 +263,11 @@ export default function Index() {
       {wb && (
         <div className="rounded-lg border p-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
-            <div className="font-medium">Workbook: {wb.metadata.fileName} • {wb.metadata.totalRows.toLocaleString()} rows • {wb.metadata.totalColumns} columns</div>
+            <div className="font-medium">
+              Workbook: {wb.metadata.fileName} •{" "}
+              {wb.metadata.totalRows.toLocaleString()} rows •{" "}
+              {wb.metadata.totalColumns} columns
+            </div>
             {sheetSelector}
           </div>
         </div>
@@ -167,9 +277,17 @@ export default function Index() {
         <>
           <SummaryCards profile={profile} />
 
-          <Controls profile={profile} rows={rows} onChangeFilters={setFilters} onChangeOptions={setOptions} />
+          <Controls
+            profile={profile}
+            rows={rows}
+            onChangeFilters={setFilters}
+            onChangeOptions={setOptions}
+          />
 
-          <Accordion type="multiple" defaultValue={["overview", "numeric", "categorical", "advanced"]}>
+          <Accordion
+            type="multiple"
+            defaultValue={["overview", "numeric", "categorical", "advanced"]}
+          >
             <AccordionItem value="overview">
               <AccordionTrigger>Overview</AccordionTrigger>
               <AccordionContent>
@@ -180,8 +298,13 @@ export default function Index() {
                 <div className="mt-4 rounded-md border p-4">
                   <div className="font-medium mb-2">Insights</div>
                   <ul className="list-disc pl-6 text-sm space-y-1">
-                    {insights && insights.recommendations.map((r, i) => (<li key={i}>{r}</li>))}
-                    {autoRecommendations.map((r, i) => (<li key={`auto-${i}`}>{r}</li>))}
+                    {insights &&
+                      insights.recommendations.map((r, i) => (
+                        <li key={i}>{r}</li>
+                      ))}
+                    {autoRecommendations.map((r, i) => (
+                      <li key={`auto-${i}`}>{r}</li>
+                    ))}
                   </ul>
                 </div>
               </AccordionContent>
@@ -194,8 +317,13 @@ export default function Index() {
                   {profile.numericColumns.slice(0, 2).map((c) => (
                     <div key={c} className="rounded-md border p-4">
                       <div className="font-medium mb-2">{c} • Histogram</div>
-                      <Histogram data={numericSeries[c] || []} bins={options.bins} />
-                      <div className="font-medium mt-4 mb-2">{c} • Box Plot</div>
+                      <Histogram
+                        data={numericSeries[c] || []}
+                        bins={options.bins}
+                      />
+                      <div className="font-medium mt-4 mb-2">
+                        {c} • Box Plot
+                      </div>
                       <BoxPlot data={numericSeries[c] || []} />
                     </div>
                   ))}
@@ -209,13 +337,20 @@ export default function Index() {
                 {profile.numericColumns.length >= 2 && (
                   <div className="mt-6 rounded-md border p-4">
                     <div className="font-medium mb-2">Scatter Plot Matrix</div>
-                    <ScatterPlotMatrix rows={filteredRows} columns={profile.numericColumns} />
+                    <ScatterPlotMatrix
+                      rows={filteredRows}
+                      columns={profile.numericColumns}
+                    />
                   </div>
                 )}
                 {profile.datetimeColumns.length ? (
                   <div className="mt-6 rounded-md border p-4">
                     <div className="font-medium mb-2">Time Series Trends</div>
-                    <TimeSeries rows={filteredRows} dateColumn={profile.datetimeColumns[0]} numericColumns={profile.numericColumns} />
+                    <TimeSeries
+                      rows={filteredRows}
+                      dateColumn={profile.datetimeColumns[0]}
+                      numericColumns={profile.numericColumns}
+                    />
                   </div>
                 ) : null}
               </AccordionContent>
@@ -234,9 +369,13 @@ export default function Index() {
                     }
                     return (
                       <div key={c} className="rounded-md border p-4">
-                        <div className="font-medium mb-2">{c} • Value Counts</div>
+                        <div className="font-medium mb-2">
+                          {c} • Value Counts
+                        </div>
                         <CategoricalBar values={counts} />
-                        <div className="font-medium mt-4 mb-2">{c} • Proportion</div>
+                        <div className="font-medium mt-4 mb-2">
+                          {c} • Proportion
+                        </div>
                         <CategoricalPie values={counts} />
                       </div>
                     );
@@ -248,8 +387,15 @@ export default function Index() {
                     {(() => {
                       const a = profile.categoricalColumns[0];
                       const b = profile.categoricalColumns[1];
-                      const data = filteredRows.map((r) => ({ a: String(r[a]), b: String(r[b]) }));
-                      const { matrix, rows: rr, cols: cc } = buildCrossTab(data);
+                      const data = filteredRows.map((r) => ({
+                        a: String(r[a]),
+                        b: String(r[b]),
+                      }));
+                      const {
+                        matrix,
+                        rows: rr,
+                        cols: cc,
+                      } = buildCrossTab(data);
                       return <CrossTab matrix={matrix} rows={rr} cols={cc} />;
                     })()}
                   </div>
@@ -260,8 +406,18 @@ export default function Index() {
             <AccordionItem value="advanced">
               <AccordionTrigger>Advanced</AccordionTrigger>
               <AccordionContent>
-                <div className="text-sm text-muted-foreground mb-3">Export charts as PNG: click the download icon on each chart section, or export a full HTML report.</div>
-                <Button variant="outline" onClick={() => exportReportHTML(renderReportHtml(profile!, insights))}>Export Report (HTML)</Button>
+                <div className="text-sm text-muted-foreground mb-3">
+                  Export charts as PNG: click the download icon on each chart
+                  section, or export a full HTML report.
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() =>
+                    exportReportHTML(renderReportHtml(profile!, insights))
+                  }
+                >
+                  Export Report (HTML)
+                </Button>
               </AccordionContent>
             </AccordionItem>
           </Accordion>
@@ -271,7 +427,10 @@ export default function Index() {
   );
 }
 
-function renderReportHtml(profile: DatasetProfile, insights: ReturnType<typeof deriveInsights> | null) {
+function renderReportHtml(
+  profile: DatasetProfile,
+  insights: ReturnType<typeof deriveInsights> | null,
+) {
   return `
   <h1>Analysis Report</h1>
   <p class="muted">Rows: ${profile.rowCount.toLocaleString()} • Columns: ${profile.columnCount} • Completeness: ${Math.round(profile.completeness * 100)}%</p>

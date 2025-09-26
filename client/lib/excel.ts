@@ -27,7 +27,9 @@ export function validateExcelFile(file: File): FileValidationResult {
     errors.push("Unsupported file type. Please upload .xlsx or .xls");
   }
   if (file.size > MAX_BYTES) {
-    errors.push(`File is too large. Max size is ${Math.round(MAX_BYTES / (1024 * 1024))}MB`);
+    errors.push(
+      `File is too large. Max size is ${Math.round(MAX_BYTES / (1024 * 1024))}MB`,
+    );
   }
   if (!file.type || !file.type.includes("sheet")) {
     // Browsers sometimes omit a proper mime-type; don't hard fail, just warn
@@ -44,7 +46,10 @@ export async function parseExcel(file: File): Promise<ParsedWorkbook> {
   }
   const sheets = sheetNames.map((name) => {
     const ws = wb.Sheets[name];
-    const rows: Row[] = XLSX.utils.sheet_to_json(ws, { defval: null, raw: true });
+    const rows: Row[] = XLSX.utils.sheet_to_json(ws, {
+      defval: null,
+      raw: true,
+    });
     return { name, rows };
   });
   const totalRows = sheets.reduce((acc, s) => acc + s.rows.length, 0);
@@ -65,12 +70,16 @@ export async function parseExcel(file: File): Promise<ParsedWorkbook> {
 }
 
 // Sample datasets for demo/testing
-export function generateSampleDataset(kind: "sales" | "finance" | "survey" | "ops" = "sales"): ParsedWorkbook {
+export function generateSampleDataset(
+  kind: "sales" | "finance" | "survey" | "ops" = "sales",
+): ParsedWorkbook {
   const now = new Date();
   const days = 120;
   const rows: Row[] = Array.from({ length: days }, (_, i) => {
     const d = new Date(now.getTime() - (days - i) * 24 * 60 * 60 * 1000);
-    const region = ["North", "South", "East", "West"][Math.floor(Math.random() * 4)];
+    const region = ["North", "South", "East", "West"][
+      Math.floor(Math.random() * 4)
+    ];
     const product = ["A", "B", "C", "D"][Math.floor(Math.random() * 4)];
     const units = Math.floor(Math.random() * 90) + 10;
     const price = [29, 49, 79, 99][Math.floor(Math.random() * 4)];

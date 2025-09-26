@@ -22,16 +22,16 @@
     --popover-foreground: 222 47% 11%;
 
     /* Brand: Indigo/Teal */
-    --primary: 222 89% 56%;          /* indigo-600 */
+    --primary: 222 89% 56%; /* indigo-600 */
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 200 100% 97%;       /* sky-50 */
+    --secondary: 200 100% 97%; /* sky-50 */
     --secondary-foreground: 222 47% 11%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215 20% 47%;
 
-    --accent: 174 84% 32%;           /* teal-600 */
+    --accent: 174 84% 32%; /* teal-600 */
     --accent-foreground: 210 40% 98%;
 
     --destructive: 0 72% 50%;
@@ -54,7 +54,7 @@
   }
 
   .dark {
-    --background: 224 71% 4%;         /* near-black indigo */
+    --background: 224 71% 4%; /* near-black indigo */
     --foreground: 210 40% 98%;
 
     --card: 224 71% 6%;
@@ -63,7 +63,7 @@
     --popover: 224 71% 6%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 222 89% 66%;           /* brighter for contrast */
+    --primary: 222 89% 66%; /* brighter for contrast */
     --primary-foreground: 224 71% 6%;
 
     --secondary: 222 15% 20%;

@@ -5,7 +5,10 @@ export function SummaryCards({ profile }: { profile: DatasetProfile }) {
   const items = [
     { label: "Rows", value: profile.rowCount.toLocaleString() },
     { label: "Columns", value: profile.columnCount.toLocaleString() },
-    { label: "Completeness", value: `${Math.round(profile.completeness * 100)}%` },
+    {
+      label: "Completeness",
+      value: `${Math.round(profile.completeness * 100)}%`,
+    },
   ];
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
