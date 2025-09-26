@@ -32,7 +32,7 @@ export function AppLayout({
       <main className="container mx-auto py-6">{children}</main>
       <footer className="border-t mt-10">
         <div className="container mx-auto py-6 text-xs text-muted-foreground flex items-center justify-between">
-          <span>© {new Date().getFullYear()} InsightForge</span>
+          <span>© {new Date().getFullYear()} ELIUS 2025</span>
           <span>Built for data analysts & business teams</span>
         </div>
       </footer>
