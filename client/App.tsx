@@ -13,13 +13,19 @@ import { AppLayout } from "@/components/layout/AppLayout";
 
 const queryClient = new QueryClient();
 
-const useHash = typeof window !== "undefined" && window.location.hostname.endsWith("github.io");
+const useHash =
+  typeof window !== "undefined" &&
+  window.location.hostname.endsWith("github.io");
 
-const RouterWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) =>
+const RouterWrapper: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) =>
   useHash ? (
     <HashRouter>{children}</HashRouter>
   ) : (
-    <BrowserRouter basename={import.meta.env.BASE_URL}>{children}</BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
+      {children}
+    </BrowserRouter>
   );
 
 const App = () => (
