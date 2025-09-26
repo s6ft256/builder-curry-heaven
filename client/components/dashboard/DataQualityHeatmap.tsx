@@ -17,15 +17,15 @@ export function DataQualityHeatmap({ rows, maxRows = 100, maxCols = 30 }: { rows
               </div>
             ))}
             {displayRows.map((r, i) => (
-              <>
-                <div key={`row-${i}`} className="sticky left-0 bg-background text-xs px-2 py-1 border-b">{i + 1}</div>
+              <div key={`row-group-${i}`} className="contents">
+                <div className="sticky left-0 bg-background text-xs px-2 py-1 border-b">{i + 1}</div>
                 {columns.map((c, j) => {
                   const missing = r[c] == null || r[c] === "";
                   return (
                     <div key={`${i}-${j}`} className={"w-4 h-4 border-b border-r " + (missing ? "bg-destructive/70" : "bg-emerald-500/70")}></div>
                   );
                 })}
-              </>
+              </div>
             ))}
           </div>
         </div>
