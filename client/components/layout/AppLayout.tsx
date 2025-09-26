@@ -21,7 +21,7 @@ export function AppLayout({
           <a href="/" className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-md bg-gradient-to-br from-primary to-accent" />
             <span className="text-lg font-bold tracking-tight">
-              InsightForge
+              ELIUS 2025
             </span>
           </a>
           <nav className="flex items-center gap-2">
