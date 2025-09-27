@@ -283,7 +283,9 @@ export default function Index() {
             <TabsList className="mb-4">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="numeric">Numerical Analysis</TabsTrigger>
-              <TabsTrigger value="categorical">Categorical Analysis</TabsTrigger>
+              <TabsTrigger value="categorical">
+                Categorical Analysis
+              </TabsTrigger>
               <TabsTrigger value="advanced">Advanced</TabsTrigger>
             </TabsList>
 
@@ -295,9 +297,10 @@ export default function Index() {
               <div className="mt-4 rounded-md border p-4">
                 <div className="font-medium mb-2">Insights</div>
                 <ul className="list-disc pl-6 text-sm space-y-1">
-                  {insights && insights.recommendations.map((r, i) => (
-                    <li key={i}>{r}</li>
-                  ))}
+                  {insights &&
+                    insights.recommendations.map((r, i) => (
+                      <li key={i}>{r}</li>
+                    ))}
                   {autoRecommendations.map((r, i) => (
                     <li key={`auto-${i}`}>{r}</li>
                   ))}
@@ -310,7 +313,10 @@ export default function Index() {
                 {profile.numericColumns.slice(0, 2).map((c) => (
                   <div key={c} className="rounded-md border p-4">
                     <div className="font-medium mb-2">{c} • Histogram</div>
-                    <Histogram data={numericSeries[c] || []} bins={options.bins} />
+                    <Histogram
+                      data={numericSeries[c] || []}
+                      bins={options.bins}
+                    />
                     <div className="font-medium mt-4 mb-2">{c} • Box Plot</div>
                     <BoxPlot data={numericSeries[c] || []} />
                   </div>
@@ -325,13 +331,20 @@ export default function Index() {
               {profile.numericColumns.length >= 2 && (
                 <div className="mt-6 rounded-md border p-4">
                   <div className="font-medium mb-2">Scatter Plot Matrix</div>
-                  <ScatterPlotMatrix rows={filteredRows} columns={profile.numericColumns} />
+                  <ScatterPlotMatrix
+                    rows={filteredRows}
+                    columns={profile.numericColumns}
+                  />
                 </div>
               )}
               {profile.datetimeColumns.length ? (
                 <div className="mt-6 rounded-md border p-4">
                   <div className="font-medium mb-2">Time Series Trends</div>
-                  <TimeSeries rows={filteredRows} dateColumn={profile.datetimeColumns[0]} numericColumns={profile.numericColumns} />
+                  <TimeSeries
+                    rows={filteredRows}
+                    dateColumn={profile.datetimeColumns[0]}
+                    numericColumns={profile.numericColumns}
+                  />
                 </div>
               ) : null}
             </TabsContent>
@@ -349,7 +362,9 @@ export default function Index() {
                     <div key={c} className="rounded-md border p-4">
                       <div className="font-medium mb-2">{c} • Value Counts</div>
                       <CategoricalBar values={counts} />
-                      <div className="font-medium mt-4 mb-2">{c} • Proportion</div>
+                      <div className="font-medium mt-4 mb-2">
+                        {c} • Proportion
+                      </div>
                       <CategoricalPie values={counts} />
                     </div>
                   );
@@ -361,7 +376,10 @@ export default function Index() {
                   {(() => {
                     const a = profile.categoricalColumns[0];
                     const b = profile.categoricalColumns[1];
-                    const data = filteredRows.map((r) => ({ a: String(r[a]), b: String(r[b]) }));
+                    const data = filteredRows.map((r) => ({
+                      a: String(r[a]),
+                      b: String(r[b]),
+                    }));
                     const { matrix, rows: rr, cols: cc } = buildCrossTab(data);
                     return <CrossTab matrix={matrix} rows={rr} cols={cc} />;
                   })()}
@@ -371,9 +389,15 @@ export default function Index() {
 
             <TabsContent value="advanced">
               <div className="text-sm text-muted-foreground mb-3">
-                Export charts as PNG: click the download icon on each chart section, or export a full HTML report.
+                Export charts as PNG: click the download icon on each chart
+                section, or export a full HTML report.
               </div>
-              <Button variant="outline" onClick={() => exportReportHTML(renderReportHtml(profile!, insights))}>
+              <Button
+                variant="outline"
+                onClick={() =>
+                  exportReportHTML(renderReportHtml(profile!, insights))
+                }
+              >
                 Export Report (HTML)
               </Button>
             </TabsContent>
