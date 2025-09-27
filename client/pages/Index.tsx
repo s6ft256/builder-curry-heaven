@@ -293,6 +293,7 @@ export default function Index() {
               <TabsTrigger value="categorical">
                 Categorical Analysis
               </TabsTrigger>
+              <TabsTrigger value="clean">Clean Data</TabsTrigger>
               <TabsTrigger value="advanced">Advanced</TabsTrigger>
             </TabsList>
 
