@@ -123,6 +123,12 @@ export default function Index() {
     return r;
   }, [rows, profile, filters]);
 
+  const [cleanedRows, cleaningReport] = useMemo(() => {
+    if (!profile) return [[], []] as [Row[], string[]];
+    const { rows: cr, report } = cleanData(filteredRows, profile);
+    return [cr, report];
+  }, [filteredRows, profile]);
+
   const numericSeries = useMemo(() => {
     if (!profile) return {} as Record<string, number[]>;
     const res: Record<string, number[]> = {};
