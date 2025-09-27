@@ -11,12 +11,7 @@ import { TimeSeries } from "@/components/charts/TimeSeries";
 import { CategoricalBar } from "@/components/charts/CategoricalBar";
 import { CategoricalPie } from "@/components/charts/CategoricalPie";
 import { CrossTab, buildCrossTab } from "@/components/charts/CrossTab";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { ParsedWorkbook, Row, generateSampleDataset } from "@/lib/excel";
 import {
@@ -284,143 +279,105 @@ export default function Index() {
             onChangeOptions={setOptions}
           />
 
-          <Accordion
-            type="multiple"
-            defaultValue={["overview", "numeric", "categorical", "advanced"]}
-          >
-            <AccordionItem value="overview">
-              <AccordionTrigger>Overview</AccordionTrigger>
-              <AccordionContent>
-                <div className="grid gap-6 lg:grid-cols-2">
-                  <DataPreviewTable rows={filteredRows} />
-                  <DataQualityHeatmap rows={filteredRows} />
-                </div>
-                <div className="mt-4 rounded-md border p-4">
-                  <div className="font-medium mb-2">Insights</div>
-                  <ul className="list-disc pl-6 text-sm space-y-1">
-                    {insights &&
-                      insights.recommendations.map((r, i) => (
-                        <li key={i}>{r}</li>
-                      ))}
-                    {autoRecommendations.map((r, i) => (
-                      <li key={`auto-${i}`}>{r}</li>
-                    ))}
-                  </ul>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
+          <Tabs defaultValue="overview">
+            <TabsList className="mb-4">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="numeric">Numerical Analysis</TabsTrigger>
+              <TabsTrigger value="categorical">Categorical Analysis</TabsTrigger>
+              <TabsTrigger value="advanced">Advanced</TabsTrigger>
+            </TabsList>
 
-            <AccordionItem value="numeric">
-              <AccordionTrigger>Numerical Analysis</AccordionTrigger>
-              <AccordionContent>
-                <div className="grid gap-6 lg:grid-cols-2">
-                  {profile.numericColumns.slice(0, 2).map((c) => (
-                    <div key={c} className="rounded-md border p-4">
-                      <div className="font-medium mb-2">{c} • Histogram</div>
-                      <Histogram
-                        data={numericSeries[c] || []}
-                        bins={options.bins}
-                      />
-                      <div className="font-medium mt-4 mb-2">
-                        {c} • Box Plot
-                      </div>
-                      <BoxPlot data={numericSeries[c] || []} />
-                    </div>
+            <TabsContent value="overview">
+              <div className="grid gap-6 lg:grid-cols-2">
+                <DataPreviewTable rows={filteredRows} />
+                <DataQualityHeatmap rows={filteredRows} />
+              </div>
+              <div className="mt-4 rounded-md border p-4">
+                <div className="font-medium mb-2">Insights</div>
+                <ul className="list-disc pl-6 text-sm space-y-1">
+                  {insights && insights.recommendations.map((r, i) => (
+                    <li key={i}>{r}</li>
                   ))}
-                </div>
-                {corr && (
-                  <div className="mt-6 rounded-md border p-4">
-                    <div className="font-medium mb-2">Correlation Matrix</div>
-                    <CorrelationHeatmap matrix={corr} />
-                  </div>
-                )}
-                {profile.numericColumns.length >= 2 && (
-                  <div className="mt-6 rounded-md border p-4">
-                    <div className="font-medium mb-2">Scatter Plot Matrix</div>
-                    <ScatterPlotMatrix
-                      rows={filteredRows}
-                      columns={profile.numericColumns}
-                    />
-                  </div>
-                )}
-                {profile.datetimeColumns.length ? (
-                  <div className="mt-6 rounded-md border p-4">
-                    <div className="font-medium mb-2">Time Series Trends</div>
-                    <TimeSeries
-                      rows={filteredRows}
-                      dateColumn={profile.datetimeColumns[0]}
-                      numericColumns={profile.numericColumns}
-                    />
-                  </div>
-                ) : null}
-              </AccordionContent>
-            </AccordionItem>
+                  {autoRecommendations.map((r, i) => (
+                    <li key={`auto-${i}`}>{r}</li>
+                  ))}
+                </ul>
+              </div>
+            </TabsContent>
 
-            <AccordionItem value="categorical">
-              <AccordionTrigger>Categorical Analysis</AccordionTrigger>
-              <AccordionContent>
-                <div className="grid gap-6 lg:grid-cols-2">
-                  {profile.categoricalColumns.slice(0, 2).map((c) => {
-                    const counts: Record<string, number> = {};
-                    for (const r of filteredRows) {
-                      const v = r[c];
-                      if (v == null || v === "") continue;
-                      counts[String(v)] = (counts[String(v)] || 0) + 1;
-                    }
-                    return (
-                      <div key={c} className="rounded-md border p-4">
-                        <div className="font-medium mb-2">
-                          {c} • Value Counts
-                        </div>
-                        <CategoricalBar values={counts} />
-                        <div className="font-medium mt-4 mb-2">
-                          {c} • Proportion
-                        </div>
-                        <CategoricalPie values={counts} />
-                      </div>
-                    );
-                  })}
-                </div>
-                {profile.categoricalColumns.length >= 2 && (
-                  <div className="mt-6 rounded-md border p-4">
-                    <div className="font-medium mb-2">Cross Tabulation</div>
-                    {(() => {
-                      const a = profile.categoricalColumns[0];
-                      const b = profile.categoricalColumns[1];
-                      const data = filteredRows.map((r) => ({
-                        a: String(r[a]),
-                        b: String(r[b]),
-                      }));
-                      const {
-                        matrix,
-                        rows: rr,
-                        cols: cc,
-                      } = buildCrossTab(data);
-                      return <CrossTab matrix={matrix} rows={rr} cols={cc} />;
-                    })()}
+            <TabsContent value="numeric">
+              <div className="grid gap-6 lg:grid-cols-2">
+                {profile.numericColumns.slice(0, 2).map((c) => (
+                  <div key={c} className="rounded-md border p-4">
+                    <div className="font-medium mb-2">{c} • Histogram</div>
+                    <Histogram data={numericSeries[c] || []} bins={options.bins} />
+                    <div className="font-medium mt-4 mb-2">{c} • Box Plot</div>
+                    <BoxPlot data={numericSeries[c] || []} />
                   </div>
-                )}
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="advanced">
-              <AccordionTrigger>Advanced</AccordionTrigger>
-              <AccordionContent>
-                <div className="text-sm text-muted-foreground mb-3">
-                  Export charts as PNG: click the download icon on each chart
-                  section, or export a full HTML report.
+                ))}
+              </div>
+              {corr && (
+                <div className="mt-6 rounded-md border p-4">
+                  <div className="font-medium mb-2">Correlation Matrix</div>
+                  <CorrelationHeatmap matrix={corr} />
                 </div>
-                <Button
-                  variant="outline"
-                  onClick={() =>
-                    exportReportHTML(renderReportHtml(profile!, insights))
+              )}
+              {profile.numericColumns.length >= 2 && (
+                <div className="mt-6 rounded-md border p-4">
+                  <div className="font-medium mb-2">Scatter Plot Matrix</div>
+                  <ScatterPlotMatrix rows={filteredRows} columns={profile.numericColumns} />
+                </div>
+              )}
+              {profile.datetimeColumns.length ? (
+                <div className="mt-6 rounded-md border p-4">
+                  <div className="font-medium mb-2">Time Series Trends</div>
+                  <TimeSeries rows={filteredRows} dateColumn={profile.datetimeColumns[0]} numericColumns={profile.numericColumns} />
+                </div>
+              ) : null}
+            </TabsContent>
+
+            <TabsContent value="categorical">
+              <div className="grid gap-6 lg:grid-cols-2">
+                {profile.categoricalColumns.slice(0, 2).map((c) => {
+                  const counts: Record<string, number> = {};
+                  for (const r of filteredRows) {
+                    const v = r[c];
+                    if (v == null || v === "") continue;
+                    counts[String(v)] = (counts[String(v)] || 0) + 1;
                   }
-                >
-                  Export Report (HTML)
-                </Button>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+                  return (
+                    <div key={c} className="rounded-md border p-4">
+                      <div className="font-medium mb-2">{c} • Value Counts</div>
+                      <CategoricalBar values={counts} />
+                      <div className="font-medium mt-4 mb-2">{c} • Proportion</div>
+                      <CategoricalPie values={counts} />
+                    </div>
+                  );
+                })}
+              </div>
+              {profile.categoricalColumns.length >= 2 && (
+                <div className="mt-6 rounded-md border p-4">
+                  <div className="font-medium mb-2">Cross Tabulation</div>
+                  {(() => {
+                    const a = profile.categoricalColumns[0];
+                    const b = profile.categoricalColumns[1];
+                    const data = filteredRows.map((r) => ({ a: String(r[a]), b: String(r[b]) }));
+                    const { matrix, rows: rr, cols: cc } = buildCrossTab(data);
+                    return <CrossTab matrix={matrix} rows={rr} cols={cc} />;
+                  })()}
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="advanced">
+              <div className="text-sm text-muted-foreground mb-3">
+                Export charts as PNG: click the download icon on each chart section, or export a full HTML report.
+              </div>
+              <Button variant="outline" onClick={() => exportReportHTML(renderReportHtml(profile!, insights))}>
+                Export Report (HTML)
+              </Button>
+            </TabsContent>
+          </Tabs>
         </>
       )}
     </div>
