@@ -368,7 +368,14 @@ export default function Index() {
                   ))}
                 </ul>
                 <div className="mt-3 flex gap-2">
-                  <Button variant="outline" onClick={() => exportRowsToCSV(cleanedRows, "cleaned-data.csv")}>Export Cleaned CSV</Button>
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      exportRowsToCSV(cleanedRows, "cleaned-data.csv")
+                    }
+                  >
+                    Export Cleaned CSV
+                  </Button>
                 </div>
               </div>
               <DataPreviewTable rows={cleanedRows} />

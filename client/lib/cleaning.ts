@@ -54,7 +54,10 @@ function normalizeDate(v: any): string | null {
   return iso.slice(11, 19) === "00:00:00" ? iso.slice(0, 10) : iso;
 }
 
-export function cleanData(rows: Row[], profile: DatasetProfile): { rows: Row[]; report: string[] } {
+export function cleanData(
+  rows: Row[],
+  profile: DatasetProfile,
+): { rows: Row[]; report: string[] } {
   const report: string[] = [];
   const out: Row[] = rows.map((r) => ({ ...r }));
 
@@ -80,7 +83,9 @@ export function cleanData(rows: Row[], profile: DatasetProfile): { rows: Row[]; 
       if (m !== null) modes.set(name, m);
     } else if (col.type === "categorical" || col.type === "text") {
       const vals = rows
-        .map((rr) => (rr[name] == null || rr[name] === "" ? null : String(rr[name]).trim()))
+        .map((rr) =>
+          rr[name] == null || rr[name] === "" ? null : String(rr[name]).trim(),
+        )
         .filter((v): v is string => v !== null && v !== "");
       const m = mode(vals);
       if (m != null) modes.set(name, m);
@@ -96,7 +101,9 @@ export function cleanData(rows: Row[], profile: DatasetProfile): { rows: Row[]; 
       const converted = nums.map((v) => (v == null ? median : v));
       const clipped = winsorize(converted);
       for (let i = 0; i < out.length; i++) out[i][name] = clipped[i];
-      report.push(`${name}: converted to number, imputed median ${median.toFixed(2)}, winsorized outliers`);
+      report.push(
+        `${name}: converted to number, imputed median ${median.toFixed(2)}, winsorized outliers`,
+      );
     } else if (col.type === "datetime") {
       for (const rr of out) rr[name] = normalizeDate(rr[name]) ?? rr[name];
       report.push(`${name}: normalized dates to ISO (YYYY-MM-DD or ISO 8601)`);
