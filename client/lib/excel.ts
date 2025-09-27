@@ -17,7 +17,7 @@ export interface FileValidationResult {
   errors: string[];
 }
 
-const ALLOWED_EXT = [".xlsx", ".xls"];
+const ALLOWED_EXT = [".xlsx", ".xls", ".xlsm"];
 const MAX_BYTES = 25 * 1024 * 1024; // 25MB
 
 export function validateExcelFile(file: File): FileValidationResult {
