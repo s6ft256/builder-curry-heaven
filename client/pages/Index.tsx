@@ -147,17 +147,19 @@ export default function Index() {
   }
 
   const sheetSelector = wb ? (
-    <div className="flex flex-wrap gap-2">
-      {wb.sheets.map((s, i) => (
-        <Button
-          key={s.name}
-          variant={i === sheetIndex ? "default" : "outline"}
-          size="sm"
-          onClick={() => setSheetIndex(i)}
-        >
-          {s.name}
-        </Button>
-      ))}
+    <div className="flex items-center gap-2">
+      <label className="text-sm text-muted-foreground">Sheet</label>
+      <select
+        className="h-9 border rounded px-2"
+        value={sheetIndex}
+        onChange={(e) => setSheetIndex(Number(e.target.value))}
+      >
+        {wb.sheets.map((s, i) => (
+          <option key={s.name} value={i}>
+            {s.name}
+          </option>
+        ))}
+      </select>
     </div>
   ) : null;
 
@@ -267,7 +269,7 @@ export default function Index() {
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="font-medium">
               Workbook: {wb.metadata.fileName} •{" "}
-              {wb.metadata.totalRows.toLocaleString()} rows •{" "}
+              {wb.metadata.totalRows.toLocaleString()} rows ��{" "}
               {wb.metadata.totalColumns} columns
             </div>
             {sheetSelector}
