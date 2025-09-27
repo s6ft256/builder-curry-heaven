@@ -31,6 +31,7 @@ import {
   exportSvgToPng,
   exportReportHTML,
 } from "@/lib/export";
+import { cleanData } from "@/lib/cleaning";
 import { toast } from "sonner";
 
 export default function Index() {
