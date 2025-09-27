@@ -35,9 +35,8 @@ export function CorrelationHeatmap({
             </div>
           ))}
           {cols.map((rowC, i) => (
-            <>
+            <div key={`row-${i}`} className="contents">
               <div
-                key={`r-${rowC}`}
                 className="text-xs whitespace-nowrap pr-2 text-right flex items-center"
                 style={{ height: size }}
               >
@@ -55,7 +54,7 @@ export function CorrelationHeatmap({
                   }}
                 />
               ))}
-            </>
+            </div>
           ))}
         </div>
       </div>
