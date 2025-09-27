@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { cn } from "@/lib/utils";
+import { Link } from "react-router-dom";
 
 export function AppLayout({
   children,
@@ -18,10 +19,10 @@ export function AppLayout({
     >
       <header className="sticky top-0 z-40 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
         <div className="container mx-auto flex items-center justify-between py-3">
-          <a href="/" className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-md bg-gradient-to-br from-primary to-accent" />
             <span className="text-lg font-bold tracking-tight">ELIUS 2025</span>
-          </a>
+          </Link>
           <nav className="flex items-center gap-2">
             <ThemeToggle />
           </nav>
