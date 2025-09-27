@@ -357,6 +357,21 @@ export default function Index() {
               ) : null}
             </TabsContent>
 
+            <TabsContent value="clean">
+              <div className="rounded-md border p-4 mb-4">
+                <div className="font-medium mb-2">Cleaning Summary</div>
+                <ul className="list-disc pl-6 text-sm space-y-1">
+                  {cleaningReport.map((r, i) => (
+                    <li key={i}>{r}</li>
+                  ))}
+                </ul>
+                <div className="mt-3 flex gap-2">
+                  <Button variant="outline" onClick={() => exportRowsToCSV(cleanedRows, "cleaned-data.csv")}>Export Cleaned CSV</Button>
+                </div>
+              </div>
+              <DataPreviewTable rows={cleanedRows} />
+            </TabsContent>
+
             <TabsContent value="categorical">
               <div className="grid gap-6 lg:grid-cols-2">
                 {profile.categoricalColumns.slice(0, 2).map((c) => {
