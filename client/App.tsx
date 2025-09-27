@@ -14,7 +14,8 @@ import { AppLayout } from "@/components/layout/AppLayout";
 const queryClient = new QueryClient();
 
 const useHash =
-  (typeof window !== "undefined" && window.location.hostname.endsWith("github.io")) ||
+  (typeof window !== "undefined" &&
+    window.location.hostname.endsWith("github.io")) ||
   import.meta.env.BASE_URL !== "/";
 
 const RouterWrapper: React.FC<{ children: React.ReactNode }> = ({
