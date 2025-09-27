@@ -57,14 +57,14 @@ export function UploadZone({
       <input
         ref={inputRef}
         type="file"
-        accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+        accept=".xlsx,.xls,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,application/vnd.ms-excel.sheet.macroEnabled.12"
         className="hidden"
         onChange={(e) => handleFiles(e.target.files)}
       />
       <div className="flex flex-col items-center gap-2">
         <p className="font-medium">Drag & drop Excel files here</p>
         <p className="text-sm text-muted-foreground">
-          .xlsx, .xls up to 25MB. Multiple sheets supported.
+          .xlsx, .xls, .xlsm up to 25MB. Multiple sheets supported.
         </p>
         <div className="flex items-center gap-2 mt-2">
           <Button onClick={() => inputRef.current?.click()}>Choose file</Button>
