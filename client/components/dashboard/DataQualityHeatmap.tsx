@@ -2,7 +2,7 @@ import { Row } from "@/lib/excel";
 
 export function DataQualityHeatmap({
   rows,
-  maxRows = 100,
+  maxRows = 10,
   maxCols = 30,
 }: {
   rows: Row[];
