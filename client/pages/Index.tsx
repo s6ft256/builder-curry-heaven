@@ -272,7 +272,7 @@ export default function Index() {
               {wb.metadata.totalRows.toLocaleString()} rows ��{" "}
               {wb.metadata.totalColumns} columns
             </div>
-            {sheetSelector}
+            {/* sheet selector moved to Clean Data tab */}
           </div>
         </div>
       )}
@@ -360,6 +360,7 @@ export default function Index() {
             </TabsContent>
 
             <TabsContent value="clean">
+              {wb && <div className="mb-3">{sheetSelector}</div>}
               <div className="rounded-md border p-4 mb-4">
                 <div className="font-medium mb-2">Cleaning Summary</div>
                 <ul className="list-disc pl-6 text-sm space-y-1">
