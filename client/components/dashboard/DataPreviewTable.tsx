@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 
 export function DataPreviewTable({
   rows,
-  maxRows = 200,
+  maxRows = 10,
 }: {
   rows: Row[];
   maxRows?: number;
