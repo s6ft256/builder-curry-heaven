@@ -125,7 +125,7 @@ export default function Index() {
   }, [rows, profile, filters]);
 
   const [cleanedRows, cleaningReport] = useMemo(() => {
-    const source = wb ? wb.sheets[cleanSheetIndex]?.rows ?? [] : [];
+    const source = wb ? (wb.sheets[cleanSheetIndex]?.rows ?? []) : [];
     if (!source.length) return [[], []] as [Row[], string[]];
     const cp = profileData(source);
     const { rows: cr, report } = cleanData(source, cp);
@@ -370,7 +370,9 @@ export default function Index() {
               <div className="mb-3 flex items-center justify-end gap-2">
                 <Button
                   variant="outline"
-                  onClick={() => exportRowsToCSV(cleanedRows, "cleaned-data.csv")}
+                  onClick={() =>
+                    exportRowsToCSV(cleanedRows, "cleaned-data.csv")
+                  }
                 >
                   Download Cleaned CSV
                 </Button>
@@ -378,12 +380,24 @@ export default function Index() {
                   onClick={() =>
                     exportWorkbookToXLSX(
                       {
-                        sheets: [{ name: wb?.sheets[cleanSheetIndex]?.name || "Cleaned", rows: cleanedRows }],
+                        sheets: [
+                          {
+                            name:
+                              wb?.sheets[cleanSheetIndex]?.name || "Cleaned",
+                            rows: cleanedRows,
+                          },
+                        ],
                         metadata: {
-                          sheetNames: [wb?.sheets[cleanSheetIndex]?.name || "Cleaned"],
+                          sheetNames: [
+                            wb?.sheets[cleanSheetIndex]?.name || "Cleaned",
+                          ],
                           totalRows: cleanedRows.length,
-                          totalColumns: cleanedRows[0] ? Object.keys(cleanedRows[0]).length : 0,
-                          fileName: (wb?.metadata.fileName || "workbook") + "-cleaned.xlsx",
+                          totalColumns: cleanedRows[0]
+                            ? Object.keys(cleanedRows[0]).length
+                            : 0,
+                          fileName:
+                            (wb?.metadata.fileName || "workbook") +
+                            "-cleaned.xlsx",
                           fileSize: cleanedRows.length * 100,
                         },
                       },
