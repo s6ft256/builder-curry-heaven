@@ -52,6 +52,7 @@ export default function Index() {
     bins: 20,
     aggregation: "mean",
   });
+  const [cleanSheetIndex, setCleanSheetIndex] = useState(0);
 
   // Undo/redo stacks
   const undoStack = useRef<Row[][]>([]);
@@ -124,10 +125,12 @@ export default function Index() {
   }, [rows, profile, filters]);
 
   const [cleanedRows, cleaningReport] = useMemo(() => {
-    if (!profile) return [[], []] as [Row[], string[]];
-    const { rows: cr, report } = cleanData(filteredRows, profile);
+    const source = wb ? wb.sheets[cleanSheetIndex]?.rows ?? [] : [];
+    if (!source.length) return [[], []] as [Row[], string[]];
+    const cp = profileData(source);
+    const { rows: cr, report } = cleanData(source, cp);
     return [cr, report];
-  }, [filteredRows, profile]);
+  }, [wb, cleanSheetIndex]);
 
   const numericSeries = useMemo(() => {
     if (!profile) return {} as Record<string, number[]>;
@@ -360,7 +363,22 @@ export default function Index() {
             </TabsContent>
 
             <TabsContent value="clean">
-              {wb && <div className="mb-3">{sheetSelector}</div>}
+              {wb && (
+                <div className="mb-3 flex items-center gap-2">
+                  <label className="text-sm text-muted-foreground">Sheet</label>
+                  <select
+                    className="h-9 border rounded px-2"
+                    value={cleanSheetIndex}
+                    onChange={(e) => setCleanSheetIndex(Number(e.target.value))}
+                  >
+                    {wb.sheets.map((s, i) => (
+                      <option key={s.name} value={i}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <div className="rounded-md border p-4 mb-4">
                 <div className="font-medium mb-2">Cleaning Summary</div>
                 <ul className="list-disc pl-6 text-sm space-y-1">
