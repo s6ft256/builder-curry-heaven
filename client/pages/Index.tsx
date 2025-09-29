@@ -372,10 +372,29 @@ export default function Index() {
                   variant="outline"
                   onClick={() => exportRowsToCSV(cleanedRows, "cleaned-data.csv")}
                 >
-                  Export Cleaned CSV
+                  Download Cleaned CSV
+                </Button>
+                <Button
+                  onClick={() =>
+                    exportWorkbookToXLSX(
+                      {
+                        sheets: [{ name: wb?.sheets[cleanSheetIndex]?.name || "Cleaned", rows: cleanedRows }],
+                        metadata: {
+                          sheetNames: [wb?.sheets[cleanSheetIndex]?.name || "Cleaned"],
+                          totalRows: cleanedRows.length,
+                          totalColumns: cleanedRows[0] ? Object.keys(cleanedRows[0]).length : 0,
+                          fileName: (wb?.metadata.fileName || "workbook") + "-cleaned.xlsx",
+                          fileSize: cleanedRows.length * 100,
+                        },
+                      },
+                      (wb?.metadata.fileName || "workbook") + "-cleaned.xlsx",
+                    )
+                  }
+                >
+                  Download Cleaned Excel
                 </Button>
               </div>
-              <DataPreviewTable rows={cleanedRows} />
+              <DataPreviewTable rows={cleanedRows} maxRows={10} />
             </TabsContent>
 
             <TabsContent value="categorical">
