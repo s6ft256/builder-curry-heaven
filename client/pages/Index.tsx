@@ -379,23 +379,13 @@ export default function Index() {
                   </select>
                 </div>
               )}
-              <div className="rounded-md border p-4 mb-4">
-                <div className="font-medium mb-2">Cleaning Summary</div>
-                <ul className="list-disc pl-6 text-sm space-y-1">
-                  {cleaningReport.map((r, i) => (
-                    <li key={i}>{r}</li>
-                  ))}
-                </ul>
-                <div className="mt-3 flex gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() =>
-                      exportRowsToCSV(cleanedRows, "cleaned-data.csv")
-                    }
-                  >
-                    Export Cleaned CSV
-                  </Button>
-                </div>
+              <div className="mb-3 flex items-center justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => exportRowsToCSV(cleanedRows, "cleaned-data.csv")}
+                >
+                  Export Cleaned CSV
+                </Button>
               </div>
               <DataPreviewTable rows={cleanedRows} />
             </TabsContent>
