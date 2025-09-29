@@ -307,18 +307,6 @@ export default function Index() {
                 <DataPreviewTable rows={filteredRows} />
                 <DataQualityHeatmap rows={filteredRows} />
               </div>
-              <div className="mt-4 rounded-md border p-4">
-                <div className="font-medium mb-2">Insights</div>
-                <ul className="list-disc pl-6 text-sm space-y-1">
-                  {insights &&
-                    insights.recommendations.map((r, i) => (
-                      <li key={i}>{r}</li>
-                    ))}
-                  {autoRecommendations.map((r, i) => (
-                    <li key={`auto-${i}`}>{r}</li>
-                  ))}
-                </ul>
-              </div>
             </TabsContent>
 
             <TabsContent value="numeric">
